@@ -1,0 +1,30 @@
+:80 {
+# -----------------------------------------------------------
+# 1. API Routing (Forward to FastAPI)
+# -----------------------------------------------------------
+# All requests, including the base path '/', are forwarded to the FastAPI service.
+# This ensures that the FastAPI app's root route (e.g., a simple health check or docs page)
+# is accessible directly through the proxy.
+reverse_proxy * app:8000
+
+# -----------------------------------------------------------
+# 2. Logging
+# -----------------------------------------------------------
+# Access logging is retained for debugging connectivity between Caddy and the app service.
+log {
+    output stdout
+    format json
+}
+
+# Optional Security Headers (Good practice, even in dev)
+header {
+    # Prevent page from being put in an iframe (Clickjacking protection)
+    X-Frame-Options "DENY"
+    # Protect against cross-site scripting (XSS)
+    X-XSS-Protection "1; mode=block"
+    # Content Type enforcement
+    X-Content-Type-Options "nosniff"
+}
+
+
+}
