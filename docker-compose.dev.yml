@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------
+  # 1. FastAPI Application Service (app)
+  # ----------------------------------------------------
+  app:
+    # Use the custom Dockerfile for the app service
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: edtech_fastapi_app
+    restart: unless-stopped
+    # Mount the source code directory to enable hot-reloading (uvicorn --reload)
+    volumes:
+      - .:/usr/src/app
+    # Environment variables for the application
+    environment:
+      # Database connection string variables
+      POSTGRES_USER: ${POSTGRES_USER:-edtech_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edtech_password}
+      POSTGRES_DB: ${POSTGRES_DB:-edtech_dev}
+      DATABASE_HOST: db # Service name in the compose network
+      DATABASE_PORT: 5432
+      # FastAPI specific
+      APP_ENV: development
+    # Connects to the internal network defined below
+    networks:
+      - edtech_network
+
+  # ----------------------------------------------------
+  # 2. PostgreSQL Database Service (db)
+  # ----------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: edtech_postgres_db
+    restart: unless-stopped
+    # Persist the database data outside the container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      # Use the same variables as defined for the app service for consistency
+      POSTGRES_USER: ${POSTGRES_USER:-edtech_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edtech_password}
+      POSTGRES_DB: ${POSTGRES_DB:-edtech_dev}
+    networks:
+      - edtech_network
+
+  # ----------------------------------------------------
+  # 3. Caddy Reverse Proxy (proxy)
+  # ----------------------------------------------------
+  proxy:
+    image: caddy:2.7.5-alpine
+    container_name: edtech_caddy_proxy
+    restart: unless-stopped
+    # Expose the public ports for access
+    ports:
+      - "80:80" # Access via http://localhost/
+    volumes:
+      # Mount Caddyfile for configuration
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      # Persist Caddy's configuration data
+      - caddy_data:/data
+    networks:
+      - edtech_network
+    # Wait for the application to be ready (optional, but good practice)
+    depends_on:
+      - app
+
+# Define external volumes for persistent data
+volumes:
+  postgres_data:
+  caddy_data:
+
+# Define a custom network for services to communicate securely
+networks:
+  edtech_network:
+    driver: bridge
