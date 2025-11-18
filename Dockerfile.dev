@@ -1,0 +1,42 @@
+# Use a slim, stable Python base image
+FROM python:3.11-slim
+
+# Set environment variables for non-root user execution
+ENV PYTHONUNBUFFERED 1
+ENV APP_HOME /usr/src/app
+
+# Install necessary system dependencies and uv
+# We use apt-get to install build essentials needed for some Python packages (like psycopg2)
+# We use pip to install uv, which is then used to manage all other dependencies.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv globally for use in this image
+RUN pip install uv
+
+# Create and set the working directory
+WORKDIR $APP_HOME
+
+# Copy only the dependency files first to leverage Docker's build cache
+# requirements.txt is used to list core dependencies
+COPY ./requirements.txt .
+
+# Install dependencies using uv
+# --no-cache-dir is standard practice in Docker
+# We install all dependencies in the system site-packages for the image
+RUN uv pip install -r requirements.txt --system
+
+# Copy the rest of the application code
+# Assuming your FastAPI application is in the local directory
+COPY . .
+
+# Expose the port Uvicorn runs on
+EXPOSE 8000
+
+# Command to run the application using uvicorn.
+# We use watch mode (--reload) for development convenience.
+# Assumes your FastAPI application instance is called 'app' inside 'main.py'
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
