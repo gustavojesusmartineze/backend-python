@@ -79,6 +79,24 @@ Expected:
 docker compose -f docker-compose.dev.yml run --rm alembic alembic upgrade head
 ```
 
+# 🧪 Running tests
+
+### Run all tests:
+```
+docker compose -f docker-compose.dev.yml run --rm app pytest
+```
+
+### Run only integration tests:
+```
+docker compose -f docker-compose.dev.yml run --rm app pytest tests/integration
+```
+
+### Run only e2e tests:
+(ensure the app is running first)
+```
+docker compose -f docker-compose.dev.yml run --rm app pytest tests/e2e
+```
+
 # 🧪 API Documentation
 After starting the app:
 
