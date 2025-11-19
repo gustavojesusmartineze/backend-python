@@ -1,78 +1,86 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  # ----------------------------------------------------
-  # 1. FastAPI Application Service (app)
-  # ----------------------------------------------------
   app:
-    # Use the custom Dockerfile for the app service
     build:
       context: .
       dockerfile: Dockerfile.dev
     container_name: edtech_fastapi_app
     restart: unless-stopped
-    # Mount the source code directory to enable hot-reloading (uvicorn --reload)
+    command: >
+      uvicorn src.infrastructure.api.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
     volumes:
       - .:/usr/src/app
-    # Environment variables for the application
+    ports:
+      - "8000:8000"
     environment:
-      # Database connection string variables
-      POSTGRES_USER: ${POSTGRES_USER:-edtech_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edtech_password}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-edtech_dev}
-      DATABASE_HOST: db # Service name in the compose network
+      DATABASE_HOST: db
       DATABASE_PORT: 5432
-      # FastAPI specific
       APP_ENV: development
-    # Connects to the internal network defined below
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-edtech_dev}
+    depends_on:
+      - db
     networks:
       - edtech_network
 
-  # ----------------------------------------------------
-  # 2. PostgreSQL Database Service (db)
-  # ----------------------------------------------------
   db:
-    image: postgres:15-alpine
+    image: postgres:16
     container_name: edtech_postgres_db
     restart: unless-stopped
-    # Persist the database data outside the container
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-edtech_dev}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - edtech_network
+    ports:
+      - "5432:5432"
+
+  alembic:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: edtech_alembic
+    entrypoint: ["tail", "-f", "/dev/null"]  # keeps container up but idle
+    working_dir: /usr/src/app
     environment:
-      # Use the same variables as defined for the app service for consistency
-      POSTGRES_USER: ${POSTGRES_USER:-edtech_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-edtech_password}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-edtech_dev}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-edtech_dev}
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - db
     networks:
       - edtech_network
 
-  # ----------------------------------------------------
-  # 3. Caddy Reverse Proxy (proxy)
-  # ----------------------------------------------------
   proxy:
     image: caddy:2.7.5-alpine
     container_name: edtech_caddy_proxy
     restart: unless-stopped
-    # Expose the public ports for access
     ports:
-      - "80:80" # Access via http://localhost/
+      - "80:80"
     volumes:
-      # Mount Caddyfile for configuration
       - ./Caddyfile:/etc/caddy/Caddyfile
-      # Persist Caddy's configuration data
       - caddy_data:/data
-    networks:
-      - edtech_network
-    # Wait for the application to be ready (optional, but good practice)
     depends_on:
       - app
+    networks:
+      - edtech_network
 
-# Define external volumes for persistent data
 volumes:
   postgres_data:
   caddy_data:
 
-# Define a custom network for services to communicate securely
 networks:
   edtech_network:
     driver: bridge

@@ -1,0 +1,40 @@
+[project]
+name = "edtech-backend"
+version = "0.1.0"
+description = "EdTech Backend using FastAPI, SQLAlchemy, and Clean Architecture"
+requires-python = ">=3.12"
+authors = [
+    { name = "Gustavo Martinez" }
+]
+
+dependencies = [
+    "fastapi>=0.110.0",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.1",
+    "uvicorn>=0.30.0",
+    "sqlalchemy>=2.0.30",
+    "asyncpg>=0.29.0",
+    "psycopg2-binary>=2.9.9",
+    "alembic>=1.13.1",
+    "python-dotenv>=1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "ruff",
+    "black",
+    "mypy",
+]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
