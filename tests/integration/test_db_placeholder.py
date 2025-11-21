@@ -1,23 +1,33 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import text
 
-from src.infrastructure.database.session import get_async_engine, async_session
+from src.config.settings import Settings
+
+settings = Settings()
 
 
 @pytest.mark.asyncio
 async def test_database_connection_integration():
     """
-    Integration test to verify that the application can create a DB engine,
-    open a session, and execute a basic SQL query.
+    Integration test that connects to the actual PostgreSQL DB from docker-compose
+    and performs a basic SELECT 1 query.
     """
-    engine = get_async_engine()
 
-    # Create a session manually for integration tests
-    SessionLocal = async_session
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DB_ECHO,
+        future=True,
+    )
 
-    async with SessionLocal() as session:  # type: AsyncSession
+    SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+    async with engine.begin() as conn:
+        result = await conn.execute(text("SELECT 1"))
+        assert result.scalar() == 1
+
+    async with SessionLocal() as session:
         result = await session.execute(text("SELECT 1"))
-        row = result.scalar()
+        assert result.scalar() == 1
 
-        assert row == 1
+    await engine.dispose()
