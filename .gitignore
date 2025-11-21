@@ -1,0 +1,105 @@
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.pkl
+*.pyo
+*.pyd
+*.so
+*.orig
+
+# Byte-compiled / optimized / DLL files
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# ============================================
+# Virtual Environments
+# ============================================
+.venv
+venv/
+.env/
+.env.*.bak
+.python-version
+
+# ============================================
+# FastAPI / Uvicorn / Cache
+# ============================================
+*.log
+*.pid
+*.gz
+
+# ============================================
+# Pytest
+# ============================================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.cache/
+
+# ============================================
+# MyPy / Ruff / Lint
+# ============================================
+.mypy_cache/
+.mypy/
+ruff_cache/
+
+# ============================================
+# VSCode / IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================================
+# Docker
+# ============================================
+# Ignore local volumes
+postgres_data/
+caddy_data/
+docker-entrypoint-initdb.d/
+tmp/
+
+# Ignore docker build artifacts
+*.tar
+*.log
+*.tmp
+
+# ============================================
+# Alembic
+# ============================================
+# Do NOT ignore migrations — essential for deployments
+# alembic.ini included in repo
+# Alembic env and versions folder should stay
+
+# Ignore Alembic cache
+alembic/__pycache__/
+alembic/versions/__pycache__/
+
+# ============================================
+# Node / Frontend (future integration)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# OS / Misc
+# ============================================
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Local env overrides
+# ============================================
+# Keep .env.example in repo but DO NOT commit real credentials
+.env
