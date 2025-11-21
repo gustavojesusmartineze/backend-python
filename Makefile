@@ -3,6 +3,9 @@ SHELL := /bin/bash
 DC = docker compose -f docker-compose.dev.yml
 
 # --- Containers ---
+build:
+	$(DC) build --no-cache
+
 up:
 	$(DC) up -d --build
 
@@ -17,17 +20,17 @@ logs:
 
 # --- Linting ---
 lint:
-	$(DC) exec app ruff check src
+	$(DC) exec app ruff check app
 
 lint-fix:
-	$(DC) exec app ruff check src --fix
+	$(DC) exec app ruff check app --fix
 
 types:
-	$(DC) exec app mypy src
+	$(DC) exec app mypy app
 
 # --- Tests ---
 test:
-	$(DC) exec app pytest --maxfail=1 --disable-warnings --cov=src --cov-report=term-missing
+	$(DC) exec app pytest --maxfail=1 --disable-warnings --cov=app --cov-report=term-missing
 
 # --- Alembic migrations ---
 migrate:

@@ -101,6 +101,58 @@ After starting the app:
 - Uses async session handling with SQLAlchemy
 - Router auto-loading planned for expansion
 
+## Providing instructions for installing dependencies with `uv` and the Cursor configuration:
+
+
+Instructions for installing dependencies with `uv` and the Cursor configuration:
+
+### 1. Install dependencies in local virtual environment using `uv`
+
+Run this command from your project root:
+
+```bash
+uv pip install -r requirements.txt --python .venv/bin/python
+```
+
+**Alternative method** (if you need to create the venv first):
+
+```bash
+# Create virtual environment (if it doesn't exist)
+python3 -m venv .venv
+
+# Install dependencies using uv
+uv pip install -r requirements.txt --python .venv/bin/python
+```
+
+**To install from `pyproject.toml` instead:**
+
+```bash
+uv pip install -e . --python .venv/bin/python
+uv pip install -e ".[dev]" --python .venv/bin/python  # Include dev dependencies
+```
+
+### 2. Cursor configuration
+
+The configuration is already in `.vscode/settings.json`. If you need to add it manually or update it, use:
+
+**File: `.vscode/settings.json`**
+
+```json
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ]
+}
+```
+
+**To apply the configuration:**
+1. Reload Cursor: `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac) → "Developer: Reload Window"
+2. Or select the Python interpreter: `Ctrl+Shift+P` → "Python: Select Interpreter" → choose `.venv/bin/python`
+
+The configuration is already in place. After reloading Cursor, the import errors should be resolved.
+
+
 # 📬 Contact / Maintainer
 
 - Gustavo Martinez
