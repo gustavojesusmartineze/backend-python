@@ -3,7 +3,7 @@ import os
 import pytest
 from typing import AsyncGenerator
 
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -109,8 +109,10 @@ async def client(override_get_async_session):
     """
     Provide an async test client with dependency overrides active.
     """
+    transport = ASGITransport(app=app)
+    
     async with AsyncClient(
-        app=app,
+        transport=transport,
         base_url="http://testserver"
     ) as ac:
         yield ac

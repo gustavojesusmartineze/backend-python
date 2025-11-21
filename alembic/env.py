@@ -1,90 +1,88 @@
-"""
-Alembic Environment Configuration
-Handles both async and sync database migrations.
-"""
-import sys
-import pathlib
-
-# Add project root to PYTHONPATH
-BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
-sys.path.append(str(BASE_DIR))
-
-from alembic import context
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine
+from sqlalchemy import pool
+from sqlalchemy import text
+from alembic import context
 
-# ---- Load application settings ----
-from src.config.settings import Settings
-settings = Settings()
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-# ---- Import SQLAlchemy Base and all models ----
-# NOTE: These imports MUST stay here so Alembic can detect models.
+# Import your Base (contains metadata)
 from src.infrastructure.database.base import Base
+from src.config.settings import settings
 
-# Import models from each slice so they register with Base.metadata
-import src.infrastructure.database.models.academic.attendance_model  # noqa
-import src.infrastructure.database.models.academic.grade_model  # noqa
-import src.infrastructure.database.models.financial.invoice_model  # noqa
-import src.infrastructure.database.models.financial.payment_model  # noqa
-import src.infrastructure.database.models.administrative.student_model  # noqa
-import src.infrastructure.database.models.administrative.schedule_model  # noqa
 
-# ---- Alembic Config ----
+# ---------------------------------------------------------
+# 1. Alembic Config
+# ---------------------------------------------------------
 config = context.config
 
-# Override sqlalchemy.url dynamically
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-
-# Logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+
+# ---------------------------------------------------------
+# 2. Convert ASYNC URL → SYNC URL for Alembic
+# ---------------------------------------------------------
+def get_sync_url(async_url: str) -> str:
+    if async_url.startswith("postgresql+asyncpg://"):
+        return async_url.replace(
+            "postgresql+asyncpg://",
+            "postgresql+psycopg2://",
+            1
+        )
+    return async_url
+
+
+sync_database_url = get_sync_url(settings.DATABASE_URL)
+
+
+# ---------------------------------------------------------
+# 3. Set metadata for autogeneration
+# ---------------------------------------------------------
 target_metadata = Base.metadata
 
 
-# --------------------------------------------------------------------------------------
-# RUN Migrations Offline
-# --------------------------------------------------------------------------------------
+# ---------------------------------------------------------
+# 4. Offline migrations (no DB connection)
+# ---------------------------------------------------------
 def run_migrations_offline():
-    """Run migrations in 'offline' mode."""
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=sync_database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
-        compare_server_default=True,
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-# --------------------------------------------------------------------------------------
-# RUN Migrations Online
-# --------------------------------------------------------------------------------------
+# ---------------------------------------------------------
+# 5. Online migrations (real DB connection)
+# ---------------------------------------------------------
 def run_migrations_online():
-    """Run migrations in 'online' mode."""
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
+    engine = create_engine(
+        sync_database_url,
         poolclass=pool.NullPool,
+        future=True
     )
 
-    with connectable.connect() as connection:
+    with engine.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            compare_type=True,            # detect column type changes
-            compare_server_default=True,  # detect changes in defaults
-            compare_nullable=True,        # detect nullability changes
+            compare_type=True,
         )
 
         with context.begin_transaction():
             context.run_migrations()
 
 
-# ---- Run ----
+# ---------------------------------------------------------
+# 6. Execute
+# ---------------------------------------------------------
 if context.is_offline_mode():
     run_migrations_offline()
 else:
