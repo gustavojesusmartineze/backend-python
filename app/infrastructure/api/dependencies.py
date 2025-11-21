@@ -1,8 +1,8 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infrastructure.database.session import get_async_session
-from src.config.container import container
+from app.infrastructure.database.session import get_async_session
+from app.config.container import container
 
 
 async def get_db_session() -> AsyncSession:

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
-from src.infrastructure.database.session import get_async_session
+from app.infrastructure.database.session import get_async_session
 
 router = APIRouter()
 

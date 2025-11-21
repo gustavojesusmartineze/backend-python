@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import text
 
-from src.config.settings import Settings
+from app.config.settings import Settings
 
 settings = Settings()
 

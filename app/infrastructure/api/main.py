@@ -3,11 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 import logging
 
-from src.config.settings import settings
-from src.infrastructure.database import session as db_session
+from app.config.settings import settings
+from app.infrastructure.database import session as db_session
 
 # Import routers (these files may be placeholders initially)
-from src.infrastructure.api.routers import (
+from app.infrastructure.api.routers import (
     academic_router,
     financial_router,
     administrative_router,
@@ -76,7 +76,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def on_startup():
         # Initialize DB engines / session factories
-        from src.infrastructure.database.session import get_async_engine
+        from app.infrastructure.database.session import get_async_engine
         get_async_engine()
         logger.info("Engines initialized.")
 
@@ -93,5 +93,5 @@ def create_app() -> FastAPI:
     return app
 
 
-# Expose the app for uvicorn: `uvicorn src.infrastructure.api.main:app --reload`
+# Expose the app for uvicorn: `uvicorn app.infrastructure.api.main:app --reload`
 app = create_app()

@@ -10,9 +10,9 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.infrastructure.api.main import app
-from src.infrastructure.database.session import get_async_session
-from src.config.settings import settings
+from app.infrastructure.api.main import app
+from app.infrastructure.database.session import get_async_session
+from app.config.settings import settings
 
 
 # ---------------------------------------------------------

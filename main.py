@@ -2,7 +2,7 @@
 import os
 import uvicorn
 
-from src.config.settings import settings
+from app.config.settings import settings
 
 if __name__ == "__main__":
     # Use uvicorn programmatically so we can pass settings
@@ -11,7 +11,7 @@ if __name__ == "__main__":
     reload_flag = settings.APP_DEBUG
 
     uvicorn.run(
-        "src.infrastructure.api.main:app",
+        "app.infrastructure.api.main:app",
         host=host,
         port=port,
         log_level="debug" if settings.APP_DEBUG else "info",

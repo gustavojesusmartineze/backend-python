@@ -2,8 +2,8 @@ from typing import Type, Generic, TypeVar, Optional, List, Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
-from src.shared.kernel.base_repository import BaseRepository
-from src.shared.exceptions import EntityNotFoundError, InfrastructureError
+from app.common.kernel.base_repository import BaseRepository
+from app.common.exceptions import EntityNotFoundError, InfrastructureError
 
 T = TypeVar("T")       # Domain Entity
 M = TypeVar("M")       # ORM Model

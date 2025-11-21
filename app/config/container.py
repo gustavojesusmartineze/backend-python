@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional
 import logging
 
-from src.config.settings import settings
-from src.infrastructure.database import session as db_session
+from app.config.settings import settings
+from app.infrastructure.database import session as db_session
 
 logger = logging.getLogger(__name__)
 

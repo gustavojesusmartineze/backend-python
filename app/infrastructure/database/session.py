@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from src.infrastructure.database.base import Base
-from src.config.settings import settings
+from app.infrastructure.database.base import Base
+from app.config.settings import settings
 
 
 # ---------------------------------------------------------------------

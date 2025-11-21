@@ -9,8 +9,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 # Import your Base (contains metadata)
-from src.infrastructure.database.base import Base
-from src.config.settings import settings
+from app.infrastructure.database.base import Base
+from app.config.settings import settings
 
 
 # ---------------------------------------------------------
