@@ -1,17 +1,6 @@
-# 🎓 EdTech Platform — Backend
+# Python Backend Project structure
 
-A modern, scalable EdTech backend built using **FastAPI**, **Async SQLAlchemy**, and **Clean Architecture with Vertical Slicing**.
-
-This backend powers modules for:
-
-- Student information  
-- Attendance tracking  
-- Grade reporting  
-- Curriculum & scheduling  
-- Enrollment  
-- Billing & payments  
-- Internal messaging  
-- Notifications  
+A modern, scalable backend built using **FastAPI**, **Async SQLAlchemy**, and **Clean Architecture with Vertical Slicing**.
 
 ---
 
@@ -33,23 +22,21 @@ This backend powers modules for:
 Following **Clean Architecture**, **Screaming Architecture**, and **Vertical Slices**:
 
 ```
-src/
+app/
 core/ # Global domain entities + VOs
-common/ # Shared services, exceptions, interfaces
+config/
+shared/ # Shared services, exceptions, interfaces
 infrastructure/ # DB, API setup, frameworks & adapters
-academic/ # Vertical slice: attendance, grades, curriculum
-administrative/ # Enrollment, scheduling
-communication/ # Messaging, notifications
-financial/ # Billing, invoices, payments
+features/ # Vertical slice
 ```
 
 Each slice contains:
 
-- `domain/`
-- `application/` (use cases)
-- `interfaces.py`
-- `api/` (routers)
-- `repositories/` (infra overrides)
+- models.py
+- repository.py
+- service.py   
+- schemas.py
+- router.py
 
 ---
 
